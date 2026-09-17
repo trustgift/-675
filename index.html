@@ -196,8 +196,8 @@
 // ============================================================
 // ГЕНЕРАЦИЯ 3000 ОТЗЫВОВ
 // ============================================================
-const PREFIXES = ["maxim","kirill","dmitry","artem","alex","vladimir","daniil","stanislav","egor","nikita","roman","sergey","pavel","andrey","ivan","oleg","maksim","yaroslav","timur","anton","vitaly","konstantin","grigory","denis","ilya","ruslan","matvey","stepan","fedor","georgy","leonid","viktor","boris","yaropolk","aleksey","vasily","gennady","igor","mikhail","petr","semyon","taras","yuri","zakhar","bogdan","valentin","german","david","evgeny","miron","nestor","ostap","platon","arkady","vsevolod","rostislav","svyatoslav","innokenty","lavrenty"];
-const SUFFIXES = ["crypto","nft","eth","block","web3","ton","btc","coin","trade","invest","wallet","chain","defi","dao","meta","ape","gem","pump","moon","whale","hodl","bull","bear","sol","ada","dot","matic","avax","link","uni","aave","pro","x","01","02","03","007","777","999","228","1337","2000","2010","2015","2020","2024","2026"];
+const PREFIXES = ["maxim","kirill","dmitry","artem","alex","vladimir","daniil","stanislav","egor","nikita","roman","sergey","pavel","andrey","ivan","oleg","maksim","yaroslav","timur","anton","vitaly","konstantin","grigory","denis","ilya","ruslan","matvey","stepan","fedor","georgy","leonid","viktor","boris","yaropolk","aleksey","vasily","gennady","igor","mikhail","petr","semyon","taras","yuri","zakhar","bogdan","valentin","german","david","evgeny","miron","nestor","ostap","platon"];
+const SUFFIXES = ["crypto","nft","eth","block","web3","ton","btc","coin","trade","invest","wallet","chain","defi","dao","meta","ape","gem","pump","moon","whale","hodl","bull","bear","sol","ada","dot","matic","avax","link","uni","aave","pro","x","01","02","03","007","777","999","228","1337"];
 const TEXTS = [
   "Всё чётко, продавец топ, рекомендую!",
   "Купил нфт — всё заебись, доволен как слон.",
@@ -254,7 +254,7 @@ const TEXTS = [
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function randDate() {
   const start = new Date(2024, 0, 1);
-  const end = new Date(2026, 11, 31);
+  const end = new Date();
   const ts = start.getTime() + Math.random() * (end.getTime() - start.getTime());
   const d = new Date(ts);
   return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
@@ -270,20 +270,15 @@ function genReview() {
   return { name: genUsername(), stars, date: randDate(), text: TEXTS[randInt(0, TEXTS.length - 1)] };
 }
 
-// Генерируем 3000
 const ALL_REVIEWS = [];
 for (let i = 0; i < 3000; i++) ALL_REVIEWS.push(genReview());
 
-// Сортируем (новые сверху)
 ALL_REVIEWS.sort((a, b) => {
   const da = a.date.split('.').reverse().join('');
   const db = b.date.split('.').reverse().join('');
   return db.localeCompare(da);
 });
 
-// ============================================================
-// РЕНДЕР С ПАГИНАЦИЕЙ
-// ============================================================
 let SHOWN = 0;
 const PER_PAGE = 20;
 const container = document.getElementById('reviewsContainer');
@@ -322,9 +317,6 @@ function renderMore() {
 }
 loadMoreBtn.addEventListener('click', renderMore);
 
-// ============================================================
-// СТАТИСТИКА
-// ============================================================
 function animateNumber(el, target, duration = 1500) {
   let current = 0;
   const step = target / (duration / 20);
@@ -346,19 +338,12 @@ function updateStats() {
 updateStats();
 renderMore();
 
-// ============================================================
-// АВТО-ПОСТИНГ КАЖДЫЕ 30 МИНУТ
-// ============================================================
 function postNewReview() {
   const review = genReview();
-  // Дата = сегодня
   const now = new Date();
   review.date = String(now.getDate()).padStart(2,'0') + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + now.getFullYear();
-
-  // Добавляем в начало (новые сверху)
   ALL_REVIEWS.unshift(review);
 
-  // Рендерим новый отзыв первым
   const reviewEl = document.createElement('div');
   reviewEl.className = 'review';
   const starsHTML = Array.from({ length: 5 }, (_, i) =>
@@ -377,11 +362,7 @@ function postNewReview() {
   `;
   container.insertBefore(reviewEl, container.firstChild);
   SHOWN++;
-
-  // Обновляем счётчик
   reviewsCountEl.textContent = `(${ALL_REVIEWS.length})`;
-
-  // Анимация появления
   reviewEl.style.opacity = '0';
   reviewEl.style.transform = 'translateY(-20px)';
   setTimeout(() => {
@@ -391,12 +372,8 @@ function postNewReview() {
   }, 50);
 }
 
-// Каждые 30 минут (30 * 60 * 1000 = 1800000 мс)
 setInterval(postNewReview, 30 * 60 * 1000);
 
-// ============================================================
-// ВСЯ ОСТАЛЬНАЯ ДИЧЬ (cursor, matrix, particles, clock, typing)
-// ============================================================
 const cursorGlow = document.getElementById('cursorGlow');
 document.addEventListener('mousemove', (e) => {
   cursorGlow.style.left = e.clientX + 'px';
