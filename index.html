@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@rozuvu // TRUSTED • NFT • REVIEWS</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #05050a; --bg2: #0a0a14;
+    --accent: #00ff9d; --accent2: #7c3aed; --accent3: #00d4ff; --accent4: #ff00e5;
+    --text: #e6e6f0; --muted: #55556a; --border: rgba(0, 255, 157, 0.15);
+  }
+  html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; cursor: crosshair; }
+  .cursor-glow { position: fixed; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,157,0.15) 0%, transparent 70%); pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); mix-blend-mode: screen; }
+  #matrix, #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  #matrix { z-index: 0; opacity: 0.15; } #particles { z-index: 1; }
+  .grid-overlay { position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,157,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,157,0.04) 1px, transparent 1px); background-size: 50px 50px; z-index: 2; pointer-events: none; animation: gridMove 20s linear infinite; }
+  @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
+  .scanline { position: fixed; inset: 0; background: repeating-linear-gradient(0deg, rgba(0, 255, 157, 0.03) 0px, rgba(0, 255, 157, 0.03) 1px, transparent 1px, transparent 3px); z-index: 3; pointer-events: none; animation: scan 8s linear infinite; }
+  @keyframes scan { to { transform: translateY(20px); } }
+  .orb { position: fixed; border-radius: 50%; filter: blur(140px); z-index: 0; pointer-events: none; animation: float 15s ease-in-out infinite; }
+  .orb1 { width: 500px; height: 500px; background: var(--accent); top: -150px; left: -150px; opacity: 0.18; }
+  .orb2 { width: 600px; height: 600px; background: var(--accent2); bottom: -200px; right: -200px; opacity: 0.15; animation-delay: -5s; }
+  .orb3 { width: 400px; height: 400px; background: var(--accent3); top: 40%; left: 50%; opacity: 0.1; animation-delay: -10s; }
+  @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 33% { transform: translate(60px, -40px) scale(1.1); } 66% { transform: translate(-40px, 60px) scale(0.9); } }
+  .container { position: relative; z-index: 10; max-width: 820px; margin: 0 auto; padding: 50px 24px 80px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 30px; animation: fadeDown 0.8s ease both; }
+  .top-bar-item { display: flex; align-items: center; gap: 6px; }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+  .terminal { background: rgba(10, 10, 20, 0.85); border: 1px solid var(--border); border-radius: 16px; backdrop-filter: blur(20px); overflow: hidden; margin-bottom: 36px; box-shadow: 0 0 60px rgba(0, 255, 157, 0.1), 0 20px 60px rgba(0,0,0,0.5); animation: fadeUp 0.9s ease 0.1s both; position: relative; }
+  .terminal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.5; }
+  .terminal-bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; background: rgba(5, 5, 10, 0.9); border-bottom: 1px solid var(--border); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; transition: all 0.3s; } .dot:hover { transform: scale(1.3); }
+  .dot-red { background: #ff5f57; box-shadow: 0 0 8px #ff5f57; } .dot-yellow { background: #febc2e; box-shadow: 0 0 8px #febc2e; } .dot-green { background: #28c840; box-shadow: 0 0 8px #28c840; }
+  .terminal-title { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+  .terminal-body { padding: 30px 26px; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 2; min-height: 220px; }
+  .line { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .prompt { color: var(--accent); text-shadow: 0 0 10px var(--accent); } .cmd { color: var(--text); } .comment { color: var(--muted); font-style: italic; }
+  .string { color: var(--accent3); text-shadow: 0 0 8px rgba(0,212,255,0.5); } .keyword { color: var(--accent2); text-shadow: 0 0 8px rgba(124,58,237,0.5); }
+  .typing-cursor { display: inline-block; width: 9px; height: 18px; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .profile { text-align: center; margin-bottom: 44px; animation: fadeUp 0.9s ease 0.2s both; }
+  .profile-header { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 20px; flex-wrap: wrap; }
+  .avatar-wrap { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+  .avatar-ring { position: absolute; inset: -8px; border-radius: 50%; background: conic-gradient(from 0deg, var(--accent), var(--accent3), var(--accent2), var(--accent4), var(--accent)); animation: spin 4s linear infinite; filter: blur(2px); }
+  .avatar-ring-2 { position: absolute; inset: -16px; border-radius: 50%; background: conic-gradient(from 180deg, transparent, var(--accent), transparent, var(--accent3), transparent); animation: spin 8s linear infinite reverse; filter: blur(4px); opacity: 0.6; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .avatar { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 3px solid var(--bg); z-index: 2; background: var(--bg2); animation: avatarPulse 3s ease-in-out infinite; }
+  @keyframes avatarPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .profile-info { text-align: left; }
+  .name { font-family: 'Orbitron', sans-serif; font-size: 38px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2), var(--accent)); background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradientShift 4s ease infinite; display: inline-flex; align-items: center; gap: 12px; }
+  .name-emoji { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0, 255, 157, 0.6)); animation: avatarPulse 3s ease-in-out infinite; }
+  @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .tagline { font-family: 'JetBrains Mono', monospace; color: var(--muted); font-size: 12px; margin-top: 8px; letter-spacing: 2px; text-transform: uppercase; }
+  .tagline span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+  .status { display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; background: rgba(0, 255, 157, 0.06); border: 1px solid rgba(0, 255, 157, 0.3); border-radius: 30px; font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; position: relative; overflow: hidden; transition: all 0.3s; margin-top: 14px; }
+  .status:hover { background: rgba(0, 255, 157, 0.12); box-shadow: 0 0 30px rgba(0, 255, 157, 0.3); transform: translateY(-2px); }
+  .status::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,255,157,0.3), transparent); animation: shimmer 3s ease infinite; }
+  @keyframes shimmer { to { left: 100%; } }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+  .guarantee { background: linear-gradient(90deg, rgba(0,255,157,0.08), rgba(124,58,237,0.08), rgba(0,255,157,0.08)); background-size: 200% 100%; border: 1px solid var(--border); border-radius: 14px; padding: 16px 22px; margin-bottom: 36px; display: flex; align-items: center; gap: 14px; animation: fadeUp 0.9s ease 0.25s both, bannerGlow 4s ease infinite; backdrop-filter: blur(20px); }
+  @keyframes bannerGlow { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .guarantee-icon { font-size: 28px; filter: drop-shadow(0 0 10px var(--accent)); flex-shrink: 0; }
+  .guarantee-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+  .guarantee-text strong { color: var(--accent); text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); font-weight: 700; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 36px; animation: fadeUp 0.9s ease 0.3s both; }
+  .stat { background: rgba(10, 10, 20, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 18px 12px; text-align: center; backdrop-filter: blur(20px); transition: all 0.3s; }
+  .stat:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0, 255, 157, 0.15); }
+  .stat-value { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; color: var(--accent); text-shadow: 0 0 20px rgba(0, 255, 157, 0.5); margin-bottom: 4px; }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .reviews-title { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-shadow: 0 0 15px rgba(0, 255, 157, 0.5); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+  .reviews-title::before { content: ''; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent); }
+  .reviews-count { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+  .reviews { display: grid; gap: 14px; margin-bottom: 20px; animation: fadeUp 0.9s ease 0.4s both; }
+  .review { background: rgba(10, 10, 20, 0.7); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; backdrop-filter: blur(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .review::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,255,157,0.08), transparent); transition: left 0.6s ease; }
+  .review:hover::before { left: 100%; }
+  .review:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 0 40px rgba(0, 255, 157, 0.15); }
+  .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .review-user { display: flex; align-items: center; gap: 10px; }
+  .review-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 14px; color: var(--bg); }
+  .review-name { font-weight: 600; font-size: 14px; color: var(--accent); }
+  .review-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .review-stars { display: flex; gap: 2px; margin-bottom: 10px; font-size: 14px; }
+  .star { color: var(--accent); text-shadow: 0 0 8px var(--accent); } .star-empty { color: var(--muted); }
+  .review-text { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .load-more { display: block; width: 100%; padding: 16px; background: rgba(10, 10, 20, 0.7); border: 1px solid var(--border); border-radius: 14px; color: var(--accent); font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all 0.3s; margin-bottom: 36px; backdrop-filter: blur(20px); }
+  .load-more:hover { background: rgba(0, 255, 157, 0.08); border-color: var(--accent); box-shadow: 0 0 30px rgba(0, 255, 157, 0.3); transform: translateY(-2px); }
+  .load-more:disabled { opacity: 0.5; cursor: not-allowed; }
+  .links { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 36px; animation: fadeUp 0.9s ease 0.5s both; }
+  .link { display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: rgba(10, 10, 20, 0.7); border: 1px solid var(--border); border-radius: 14px; text-decoration: none; color: var(--text); backdrop-filter: blur(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+  .link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,255,157,0.1), transparent); transition: left 0.6s ease; }
+  .link:hover::before { left: 100%; }
+  .link:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 0 40px rgba(0, 255, 157, 0.2); }
+  .link-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: linear-gradient(135deg, rgba(0, 255, 157, 0.1), rgba(124, 58, 237, 0.1)); border: 1px solid var(--border); flex-shrink: 0; transition: all 0.3s; }
+  .link:hover .link-icon { transform: rotate(-8deg) scale(1.1); box-shadow: 0 0 20px rgba(0, 255, 157, 0.4); }
+  .link-info { flex: 1; overflow: hidden; }
+  .link-title { font-weight: 600; font-size: 14px; margin-bottom: 3px; transition: color 0.3s; }
+  .link:hover .link-title { color: var(--accent); }
+  .link-desc { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .footer { text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); padding-top: 30px; border-top: 1px solid var(--border); animation: fadeUp 0.9s ease 0.6s both; letter-spacing: 1px; }
+  .footer span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .links { grid-template-columns: 1fr; } .profile-header { flex-direction: column; } .profile-info { text-align: center; } }
+  @media (max-width: 500px) { .container { padding: 30px 16px 60px; } .name { font-size: 26px; } .avatar-wrap { width: 90px; height: 90px; } .terminal-body { padding: 22px 18px; font-size: 12px; } .stats { gap: 8px; } .stat-value { font-size: 20px; } .cursor-glow { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+<canvas id="matrix"></canvas>
+<canvas id="particles"></canvas>
+<div class="grid-overlay"></div>
+<div class="scanline"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div class="top-bar-item"><span class="pulse-dot"></span>SYSTEM ONLINE</div>
+    <div class="top-bar-item" id="clock">--:--:--</div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="terminal-title">~/rozuvu — trusted_terminal</div>
+    </div>
+    <div class="terminal-body">
+      <div class="line"><span class="prompt">➜</span><span class="cmd">./load_reputation.sh</span></div>
+      <div class="line"><span class="comment"># working since 2024</span></div>
+      <div class="line"><span class="comment"># 0 scam cases • 100% trusted</span></div>
+      <div class="line"><span class="prompt">➜</span><span class="cmd">cat trust_score.json</span></div>
+      <div class="line"><span class="keyword">{</span><span class="string">"rating"</span><span class="keyword">:</span> <span class="string">"5.0"</span><span class="keyword">,</span> <span class="string">"since"</span><span class="keyword">:</span> <span class="string">"2024"</span><span class="keyword">,</span> <span class="string">"scam"</span><span class="keyword">:</span> <span class="string">"never"</span><span class="keyword">}</span></div>
+      <div class="line"><span class="prompt">➜</span><span class="cmd" id="typingCmd"></span><span class="typing-cursor"></span></div>
+    </div>
+  </div>
+
+  <div class="profile">
+    <div class="profile-header">
+      <div class="avatar-wrap">
+        <div class="avatar-ring-2"></div>
+        <div class="avatar-ring"></div>
+        <div class="avatar"><img src="https://i.pravatar.cc/300?img=33" alt="avatar"></div>
+      </div>
+      <div class="profile-info">
+        <div class="name">
+          @ROZUVU
+          <img class="name-emoji" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 120'><ellipse cx='50' cy='60' rx='42' ry='55' fill='%23f5d94a'/><ellipse cx='35' cy='50' rx='7' ry='10' fill='%23000'/><ellipse cx='65' cy='50' rx='7' ry='10' fill='%23000'/><path d='M 30 85 Q 50 70 70 85' stroke='%23000' stroke-width='4' fill='none' stroke-linecap='round'/></svg>" alt=":(">
+        </div>
+        <div class="tagline"><span>//</span> NFT • TRUSTED • SINCE 2024 <span>//</span></div>
+      </div>
+    </div>
+    <div class="status"><span class="status-dot"></span>ONLINE • VERIFIED</div>
+  </div>
+
+  <div class="guarantee">
+    <div class="guarantee-icon">🛡️</div>
+    <div class="guarantee-text"><strong>Работаю с 2024 года.</strong> За всё время — <strong>ни одного случая мошенничества</strong> с моей стороны. Репутация чистая.</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-value" id="statDeals">0</div><div class="stat-label">DEALS</div></div>
+    <div class="stat"><div class="stat-value" id="statRating">0</div><div class="stat-label">RATING %</div></div>
+    <div class="stat"><div class="stat-value" id="statReviews">0</div><div class="stat-label">REVIEWS</div></div>
+  </div>
+
+  <div class="reviews-title">ОТЗЫВЫ <span class="reviews-count" id="reviewsCount"></span></div>
+  <div class="reviews" id="reviewsContainer"></div>
+  <button class="load-more" id="loadMoreBtn">ПОКАЗАТЬ ЕЩЁ</button>
+
+  <div class="links">
+    <a href="https://t.me/rozuvu" class="link" target="_blank">
+      <div class="link-icon">💬</div>
+      <div class="link-info"><div class="link-title">Telegram</div><div class="link-desc">@rozuvu</div></div>
+    </a>
+    <a href="mailto:rozuvunft@gmail.com" class="link">
+      <div class="link-icon">✉️</div>
+      <div class="link-info"><div class="link-title">Email</div><div class="link-desc">rozuvunft@gmail.com</div></div>
+    </a>
+  </div>
+
+  <div class="footer"><span>&lt;/&gt;</span> coded with AI • <span>2026</span> • v6.0</div>
+</div>
+
+<script>
+// ============================================================
+// ГЕНЕРАЦИЯ 3000 ОТЗЫВОВ
+// ============================================================
+const PREFIXES = ["maxim","kirill","dmitry","artem","alex","vladimir","daniil","stanislav","egor","nikita","roman","sergey","pavel","andrey","ivan","oleg","maksim","yaroslav","timur","anton","vitaly","konstantin","grigory","denis","ilya","ruslan","matvey","stepan","fedor","georgy","leonid","viktor","boris","yaropolk","aleksey","vasily","gennady","igor","mikhail","petr","semyon","taras","yuri","zakhar","bogdan","valentin","german","david","evgeny","miron","nestor","ostap","platon","arkady","vsevolod","rostislav","svyatoslav","innokenty","lavrenty"];
+const SUFFIXES = ["crypto","nft","eth","block","web3","ton","btc","coin","trade","invest","wallet","chain","defi","dao","meta","ape","gem","pump","moon","whale","hodl","bull","bear","sol","ada","dot","matic","avax","link","uni","aave","pro","x","01","02","03","007","777","999","228","1337","2000","2010","2015","2020","2024","2026"];
+const TEXTS = [
+  "Всё чётко, продавец топ, рекомендую!",
+  "Купил нфт — всё заебись, доволен как слон.",
+  "Работаем не первый раз, всегда всё на высоте.",
+  "Сделка прошла быстро, без ебли с ожиданием.",
+  "Честный продавец, не кинул, всё по делу.",
+  "Нфт получил моментально, продавец адекватный.",
+  "Всё по красоте, продавец знает своё дело.",
+  "Респект, всё чётко, буду брать ещё.",
+  "Красавчик, всё быстро и по-честному.",
+  "Отличный сервис, никаких претензий.",
+  "Продавец топ, всё на высшем уровне.",
+  "Всё чётко, спасибо огромное!",
+  "Заебись всё прошло, доверяю полностью.",
+  "Продавец надёжный, как скала.",
+  "Быстро, чётко, без лишней хуйни.",
+  "Пиздато всё сделал, респект!",
+  "Не первый раз беру, всё на уровне.",
+  "Моментально, чётко, без воды.",
+  "Продавец огонь, рекомендую всем!",
+  "Всё пришло, как договаривались.",
+  "Честно, быстро, надёжно. Топ.",
+  "Красава, всё сделал как надо.",
+  "Лучший продавец на рынке, без базара.",
+  "Спасибо, всё заебись, буду ещё брать.",
+  "Реально шарит, всё чётко объяснил.",
+  "Сделка чистая, продавец честный.",
+  "Никаких кидков, только позитив.",
+  "Всё по-человечески, без хуйни.",
+  "Моментальная сделка, всё топ.",
+  "От души, всё чётко, респект!",
+  "Надёжный как швейцарские часы.",
+  "Всё на высшем уровне, рекомендую.",
+  "Купил нфт — всё чётко, спасибо!",
+  "Продавец адекватный, всё быстро.",
+  "Доверяю полностью, не подвёл ни разу.",
+  "Чётко, быстро, без лишних вопросов.",
+  "Всё прошло гладко, без ебли.",
+  "Продавец знает своё дело, уважаю.",
+  "Всё честно, всё по красоте. Топ.",
+  "Спасибо за сделку, всё заебись!",
+  "Реальный продавец, не скамер.",
+  "Всё быстро, чётко, надёжно.",
+  "Красавчик, всё сделал на отлично.",
+  "Сделка прошла без проблем, спасибо!",
+  "Всё чётко, продавец на связи 24/7.",
+  "Респект и уважение, всё заебись.",
+  "Быстро, надёжно, без кидков.",
+  "Продавец топчик, рекомендую всем!",
+  "Спасибо огромное, всё пришло!",
+  "Всё чисто, продавец честный.",
+];
+
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function randDate() {
+  const start = new Date(2024, 0, 1);
+  const end = new Date(2026, 11, 31);
+  const ts = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+  const d = new Date(ts);
+  return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+}
+function genUsername() {
+  const p = PREFIXES[randInt(0, PREFIXES.length - 1)];
+  const s = SUFFIXES[randInt(0, SUFFIXES.length - 1)];
+  const variants = [`@${p}_${s}`, `@${p}${s}`, `@${p}_${s}${randInt(1,999)}`, `@${p}${randInt(1,999)}`, `@${p}.${s}`];
+  return variants[randInt(0, variants.length - 1)];
+}
+function genReview() {
+  const stars = Math.random() < 0.95 ? 5 : 4;
+  return { name: genUsername(), stars, date: randDate(), text: TEXTS[randInt(0, TEXTS.length - 1)] };
+}
+
+// Генерируем 3000
+const ALL_REVIEWS = [];
+for (let i = 0; i < 3000; i++) ALL_REVIEWS.push(genReview());
+
+// Сортируем (новые сверху)
+ALL_REVIEWS.sort((a, b) => {
+  const da = a.date.split('.').reverse().join('');
+  const db = b.date.split('.').reverse().join('');
+  return db.localeCompare(da);
+});
+
+// ============================================================
+// РЕНДЕР С ПАГИНАЦИЕЙ
+// ============================================================
+let SHOWN = 0;
+const PER_PAGE = 20;
+const container = document.getElementById('reviewsContainer');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const reviewsCountEl = document.getElementById('reviewsCount');
+
+function renderMore() {
+  const slice = ALL_REVIEWS.slice(SHOWN, SHOWN + PER_PAGE);
+  slice.forEach(r => {
+    const review = document.createElement('div');
+    review.className = 'review';
+    const starsHTML = Array.from({ length: 5 }, (_, i) =>
+      i < r.stars ? '<span class="star">★</span>' : '<span class="star star-empty">★</span>'
+    ).join('');
+    review.innerHTML = `
+      <div class="review-header">
+        <div class="review-user">
+          <div class="review-avatar">${r.name.charAt(1).toUpperCase()}</div>
+          <div class="review-name">${r.name}</div>
+        </div>
+        <div class="review-date">${r.date}</div>
+      </div>
+      <div class="review-stars">${starsHTML}</div>
+      <div class="review-text">${r.text}</div>
+    `;
+    container.appendChild(review);
+  });
+  SHOWN += slice.length;
+  if (SHOWN >= ALL_REVIEWS.length) {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'БОЛЬШЕ НЕТ';
+  } else {
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = `ПОКАЗАТЬ ЕЩЁ (${ALL_REVIEWS.length - SHOWN})`;
+  }
+}
+loadMoreBtn.addEventListener('click', renderMore);
+
+// ============================================================
+// СТАТИСТИКА
+// ============================================================
+function animateNumber(el, target, duration = 1500) {
+  let current = 0;
+  const step = target / (duration / 20);
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) { current = target; clearInterval(interval); }
+    el.textContent = Math.floor(current);
+  }, 20);
+}
+
+function updateStats() {
+  const total = ALL_REVIEWS.length;
+  const avg = (ALL_REVIEWS.reduce((s, r) => s + r.stars, 0) / total).toFixed(1);
+  animateNumber(document.getElementById('statDeals'), total);
+  animateNumber(document.getElementById('statRating'), Math.round((avg / 5) * 100));
+  animateNumber(document.getElementById('statReviews'), total);
+  reviewsCountEl.textContent = `(${total})`;
+}
+updateStats();
+renderMore();
+
+// ============================================================
+// АВТО-ПОСТИНГ КАЖДЫЕ 30 МИНУТ
+// ============================================================
+function postNewReview() {
+  const review = genReview();
+  // Дата = сегодня
+  const now = new Date();
+  review.date = String(now.getDate()).padStart(2,'0') + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + now.getFullYear();
+
+  // Добавляем в начало (новые сверху)
+  ALL_REVIEWS.unshift(review);
+
+  // Рендерим новый отзыв первым
+  const reviewEl = document.createElement('div');
+  reviewEl.className = 'review';
+  const starsHTML = Array.from({ length: 5 }, (_, i) =>
+    i < review.stars ? '<span class="star">★</span>' : '<span class="star star-empty">★</span>'
+  ).join('');
+  reviewEl.innerHTML = `
+    <div class="review-header">
+      <div class="review-user">
+        <div class="review-avatar">${review.name.charAt(1).toUpperCase()}</div>
+        <div class="review-name">${review.name}</div>
+      </div>
+      <div class="review-date">${review.date}</div>
+    </div>
+    <div class="review-stars">${starsHTML}</div>
+    <div class="review-text">${review.text}</div>
+  `;
+  container.insertBefore(reviewEl, container.firstChild);
+  SHOWN++;
+
+  // Обновляем счётчик
+  reviewsCountEl.textContent = `(${ALL_REVIEWS.length})`;
+
+  // Анимация появления
+  reviewEl.style.opacity = '0';
+  reviewEl.style.transform = 'translateY(-20px)';
+  setTimeout(() => {
+    reviewEl.style.transition = 'all 0.6s ease';
+    reviewEl.style.opacity = '1';
+    reviewEl.style.transform = 'translateY(0)';
+  }, 50);
+}
+
+// Каждые 30 минут (30 * 60 * 1000 = 1800000 мс)
+setInterval(postNewReview, 30 * 60 * 1000);
+
+// ============================================================
+// ВСЯ ОСТАЛЬНАЯ ДИЧЬ (cursor, matrix, particles, clock, typing)
+// ============================================================
+const cursorGlow = document.getElementById('cursorGlow');
+document.addEventListener('mousemove', (e) => {
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top = e.clientY + 'px';
+});
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toTimeString().slice(0, 8);
+}
+setInterval(updateClock, 1000); updateClock();
+
+const matrixCanvas = document.getElementById('matrix');
+const matrixCtx = matrixCanvas.getContext('2d');
+matrixCanvas.width = window.innerWidth; matrixCanvas.height = window.innerHeight;
+const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEF0123456789{}[]<>/\\$#@%&*';
+const fontSize = 14; const columns = matrixCanvas.width / fontSize;
+const drops = Array(Math.floor(columns)).fill(1);
+function drawMatrix() {
+  matrixCtx.fillStyle = 'rgba(5, 5, 10, 0.06)';
+  matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  matrixCtx.fillStyle = '#00ff9d';
+  matrixCtx.font = fontSize + 'px JetBrains Mono, monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const text = chars[Math.floor(Math.random() * chars.length)];
+    matrixCtx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 45);
+
+const particleCanvas = document.getElementById('particles');
+const pCtx = particleCanvas.getContext('2d');
+particleCanvas.width = window.innerWidth; particleCanvas.height = window.innerHeight;
+const particles = [];
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * particleCanvas.width, y: Math.random() * particleCanvas.height,
+    vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
+    size: Math.random() * 2 + 1,
+    color: ['#00ff9d', '#7c3aed', '#00d4ff'][Math.floor(Math.random() * 3)]
+  });
+}
+function drawParticles() {
+  pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+  particles.forEach((p, i) => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0 || p.x > particleCanvas.width) p.vx *= -1;
+    if (p.y < 0 || p.y > particleCanvas.height) p.vy *= -1;
+    pCtx.beginPath(); pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    pCtx.fillStyle = p.color; pCtx.shadowBlur = 10; pCtx.shadowColor = p.color; pCtx.fill();
+    particles.slice(i + 1).forEach(p2 => {
+      const dx = p.x - p2.x, dy = p.y - p2.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        pCtx.beginPath(); pCtx.moveTo(p.x, p.y); pCtx.lineTo(p2.x, p2.y);
+        pCtx.strokeStyle = `rgba(0, 255, 157, ${0.15 * (1 - dist / 120)})`;
+        pCtx.lineWidth = 0.5; pCtx.shadowBlur = 0; pCtx.stroke();
+      }
+    });
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+const commands = ['whoami','cat reviews.json','./check_reputation.sh','python3 verify.py','cat trust_score.json','./connect_rozuvu.sh'];
+let cmdIndex = 0, charIndex = 0, isDeleting = false;
+const typingEl = document.getElementById('typingCmd');
+function typeLoop() {
+  const current = commands[cmdIndex];
+  if (!isDeleting) {
+    typingEl.textContent = current.slice(0, charIndex + 1); charIndex++;
+    if (charIndex === current.length) { isDeleting = true; setTimeout(typeLoop, 2000); return; }
+  } else {
+    typingEl.textContent = current.slice(0, charIndex - 1); charIndex--;
+    if (charIndex === 0) { isDeleting = false; cmdIndex = (cmdIndex + 1) % commands.length; }
+  }
+  setTimeout(typeLoop, isDeleting ? 40 : 90);
+}
+typeLoop();
+
+window.addEventListener('resize', () => {
+  matrixCanvas.width = window.innerWidth; matrixCanvas.height = window.innerHeight;
+  particleCanvas.width = window.innerWidth; particleCanvas.height = window.innerHeight;
+});
+
+document.querySelectorAll('.link').forEach(link => {
+  link.addEventListener('click', () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.frequency.value = 880; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    } catch (e) {}
+  });
+});
+</script>
+
+</body>
+</html>
